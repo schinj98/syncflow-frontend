@@ -14,11 +14,41 @@ export default function LoginPage() {
     remember: false
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Dummy login - redirect to dashboard
-    router.push('/dashboard');
+  
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+    };
+  
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!res.ok) {
+        alert("Invalid email or password!");
+        return;
+      }
+  
+      const data = await res.json();
+  
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("userName", data.name);
+      localStorage.setItem("email", data.email);
+  
+      router.push("/dashboard");
+  
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Something went wrong!");
+    }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">

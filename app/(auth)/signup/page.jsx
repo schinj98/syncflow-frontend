@@ -1,6 +1,4 @@
 // app/(auth)/signup/page.jsx
-// ========================================
-
 'use client';
 import React, { useState } from 'react';
 import { Mail, Lock, User, Phone, ArrowRight, Zap, Eye, EyeOff, Building } from 'lucide-react';
@@ -20,16 +18,54 @@ export default function SignupPage() {
     terms: false
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Dummy signup - redirect to dashboard
-    router.push('/dashboard');
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    // Backend ka payload
+    const payload = {
+      storeName: formData.businessName,
+      name: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+    };
+
+    try {
+      const res = await fetch("http://localhost:8080/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      console.log("Signup Response:", data);
+
+      if (data?.id) {
+        // save user id for dashboard/product creation
+        localStorage.setItem("userId", data.id);
+        localStorage.setItem("userName", data.name);   // NEW
+        localStorage.setItem("email", data.email);
+
+        router.push("/dashboard");
+      } else {
+        alert("Signup failed");
+      }
+
+    } catch (err) {
+      console.error("Signup error:", err);
+      alert("Something went wrong");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4 py-12">
       <div className="w-full max-w-2xl">
-        {/* Logo */}
+        
         <Link href="/" className="flex items-center justify-center space-x-2 mb-8">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
             <Zap className="w-6 h-6 text-white" />
@@ -39,7 +75,6 @@ export default function SignupPage() {
           </span>
         </Link>
 
-        {/* Signup Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Create Your Account</h1>
@@ -47,7 +82,7 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name & Email Row */}
+            
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -84,7 +119,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Phone & Business Name Row */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -121,7 +155,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Password Row */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -165,7 +198,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Terms */}
             <div className="flex items-start">
               <input
                 type="checkbox"
@@ -182,7 +214,6 @@ export default function SignupPage() {
               </label>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition flex items-center justify-center"
@@ -192,7 +223,6 @@ export default function SignupPage() {
             </button>
           </form>
 
-          {/* Sign In Link */}
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{' '}
             <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
@@ -201,7 +231,6 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Back to Home */}
         <div className="text-center mt-6">
           <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
             ← Back to Home
