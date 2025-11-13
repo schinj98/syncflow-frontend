@@ -21,9 +21,7 @@ export default function ProductListPage() {
 
     async function fetchProducts() {
       try {
-        const res = await fetch(
-          `http://localhost:8080/api/products/user/${userId}`,
-          {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/user/${userId}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
